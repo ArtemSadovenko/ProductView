@@ -1,0 +1,6 @@
+inforce-front/node_modules/
+inforce-front/public/build/
+app/target/
+*.log
+.idea/
+
