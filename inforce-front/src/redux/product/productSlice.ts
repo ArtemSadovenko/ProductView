@@ -20,7 +20,9 @@ const productSlice = createSlice({
   initialState: initState,
   reducers: {
     setProducts: (state, action: PayloadAction<ProductType[]>) => {
-      state = action.payload; 
+      
+      state.push(...action.payload)
+
     },
     setSelectedProduct: (state, action: PayloadAction<ProductType>) => {
       const productId = action.payload.id;

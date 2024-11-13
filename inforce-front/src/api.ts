@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { ProductType } from './redux/product/types'; 
-import { CommentType } from './redux/comment/types';
+import { BlankCommentType, CommentType } from './redux/comment/types';
 import { Start } from '@mui/icons-material';
 const START_URL = "http://localhost:8080/api" 
 
@@ -36,6 +36,19 @@ export const createProduct = async (product: ProductType): Promise<void> => {
     throw error;
   }
 };
+
+export const addComment = async (productId: number, comment: BlankCommentType) => {
+  try {
+    // Make the POST request
+    const response = await axios.post(`${PRODUCT_API_URL}/comment/${productId}`, comment);
+    console.log('Comment added successfully:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error adding comment:', error);
+    throw error; // or handle it as needed
+  }
+};
+
 
 export const updateProduct = async (product: ProductType): Promise<void> => {
   try {

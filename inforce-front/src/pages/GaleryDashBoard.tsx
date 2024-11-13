@@ -11,8 +11,12 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  FormControl,
   Grid2,
   IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
   TextField,
   Typography,
 } from "@mui/material";
@@ -20,10 +24,14 @@ import ProductCard from "../components/ProductCard";
 import AddIcon from "@mui/icons-material/Add";
 import Dialog from "@mui/material/Dialog";
 
+enum SortCase {
+  ASCE = "Alphabetically",
+  DESC = "Reverce Alphabetically",
+  COUNT = "By value",
+}
+
 function GaleryDashBoard() {
-  const products: ProductType[] = useSelector(
-    (state: RootState) => state.products
-  );
+  let products: ProductType[];
   const dispatch = useDispatch();
   const [isShowPreloader, setIsShowPreloader] = useState(true);
   const [productsList, setProductsList] = useState<ProductType[]>([]);
@@ -38,26 +46,52 @@ function GaleryDashBoard() {
     weight: "",
     comments: [],
   });
+  const [sort, setSort] = useState<SortCase>(SortCase.ASCE);
+
   useEffect(() => {
     fetchProducts();
     setIsShowPreloader(false);
   }, []);
 
   const fetchProducts = async () => {
+    setIsShowPreloader(true);
     try {
       const productData = await getAllProducts();
 
       if (productData) {
         dispatch(setProducts(productData));
-        setProductsList(productData);
+        sortView(productData, sort);
+      }
+      if (productsList) {
+        setIsShowPreloader(false);
       }
     } catch (error) {
+      setIsShowPreloader(false);
       console.error("Error fetching products:", error);
     }
   };
 
   const handleAddClick = () => {
     setIsOpenDialog(!isOpenDialog);
+  };
+
+  const sortView = (list: ProductType[], sort: SortCase) => {
+    switch (sort) {
+      case SortCase.ASCE:
+        return setProductsList(
+          list.sort((a, b) =>
+            a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+          )
+        );
+      case SortCase.DESC:
+        return setProductsList(
+          list.sort((a, b) =>
+            b.name.toLowerCase().localeCompare(a.name.toLowerCase())
+          )
+        );
+      case SortCase.COUNT:
+        return setProductsList(list.sort((a, b) => a.count - b.count));
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,9 +101,20 @@ function GaleryDashBoard() {
       [name]: value,
     }));
   };
+  const handleInnnerSizeValuerChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const { name, value } = e.target;
+    setProductData((prevData) => ({
+      ...prevData,
+      size: {
+        ...prevData.size,
+        [name]: value,
+      },
+    }));
+  };
 
   const handleSave = async () => {
-
     if (
       !productData.name ||
       !productData.imageUrl ||
@@ -87,6 +132,7 @@ function GaleryDashBoard() {
     try {
       await createProduct(productData);
       setIsOpenDialog(false);
+      fetchProducts();
     } catch (error) {
       console.error("Failed to create product:", error);
     }
@@ -95,11 +141,11 @@ function GaleryDashBoard() {
   return (
     <Box
       sx={{
-        width: "100vw",
-        height: "100vh",
+        width: "100%",
+        height: "auto",
         backgroundColor: "#979aaa",
         overflowX: "auto",
-        padding: "12px 24px 12px 24px ",
+        // padding: "12px 24px 12px 24px ",
       }}
     >
       <Dialog open={isOpenDialog}>
@@ -132,19 +178,19 @@ function GaleryDashBoard() {
           />
           <TextField
             label="Width"
-            name="size.width"
+            name="width"
             type="number"
             value={productData.size.width}
-            onChange={handleChange}
+            onChange={handleInnnerSizeValuerChange}
             fullWidth
             margin="normal"
           />
           <TextField
             label="Height"
-            name="size.height"
+            name="height"
             type="number"
             value={productData.size.height}
-            onChange={handleChange}
+            onChange={handleInnnerSizeValuerChange}
             fullWidth
             margin="normal"
           />
@@ -170,15 +216,43 @@ function GaleryDashBoard() {
         </DialogActions>
       </Dialog>
 
-      <h1>Products Galery</h1>
-
+      <Box
+        sx={{
+          width: "90%",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "12px 48px 12px 24px",
+        }}
+      >
+        <h1>Products Galery</h1>
+        <FormControl
+          sx={{
+            width: "auto",
+          }}
+        >
+          <InputLabel>Sort</InputLabel>
+          <Select
+            value={sort}
+            label="Sort"
+            onChange={(event) => {
+              setSort(event.target.value as SortCase);
+              sortView(productsList, event.target.value as SortCase);
+            }}
+          >
+            <MenuItem value={SortCase.ASCE}>Alphabetically</MenuItem>
+            <MenuItem value={SortCase.DESC}>Reverce Alphabetically</MenuItem>
+            <MenuItem value={SortCase.COUNT}>By value</MenuItem>
+          </Select>
+        </FormControl>
+      </Box>
       {isShowPreloader ? (
         <div>Loading products...</div>
       ) : (
-        <Box>
-          <Grid2 container spacing={2}>
+        <Box >
+          <Grid2 container   spacing={2} >
             {productsList.map((product) => (
-              <Grid2 key={product.id} size={{ xs: 6, sm: 4, md: 3 }}>
+              <Grid2 display="flex" justifyContent="center" alignItems="center"  key={product.id} size={{ xs: 6, sm: 4, md: 3 }}>
                 <ProductCard product={product} />
               </Grid2>
             ))}

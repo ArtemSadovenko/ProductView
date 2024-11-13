@@ -1,4 +1,4 @@
-import { CommentType } from "../comment/types";
+import { BlankCommentType, CommentType } from "../comment/types";
 
 export type ProductType = {
     id: number | undefined,
@@ -10,5 +10,5 @@ export type ProductType = {
         height:number
     },
     weight:string,
-    comments: CommentType[]
+    comments: CommentType[] | BlankCommentType[]
 }

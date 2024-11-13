@@ -1,5 +1,6 @@
 package com.example.app.controller;
 
+import com.example.app.enity.CommentEntity;
 import com.example.app.enity.ProductEntity;
 import com.example.app.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -29,12 +30,17 @@ public class ProductController {
     }
 
     @PutMapping("/update")
-    public void updateProduct(ProductEntity product) {
+    public void updateProduct(@RequestBody ProductEntity product) {
         productService.update(product);
     }
 
     @DeleteMapping("/{id}")
     public void deleteProduct(@PathVariable Long id) {
         productService.deleteById(id);
+    }
+
+    @PostMapping("/comment/{id}")
+    public void addComment(@PathVariable Long id, @RequestBody CommentEntity comment) {
+        productService.addComment(comment, id);
     }
 }

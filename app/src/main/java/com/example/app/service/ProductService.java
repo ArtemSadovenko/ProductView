@@ -1,6 +1,7 @@
 package com.example.app.service;
 
 import com.example.app.Repos.ProductRepositpry;
+import com.example.app.enity.CommentEntity;
 import com.example.app.enity.ProductEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,5 +32,11 @@ public class ProductService {
         productRepositpry.save(productEntity);
     }
 
+    public void addComment(CommentEntity commentEntity, Long productId) {
+        var product = findById(productId);
+        commentEntity.setProduct(product);
+        product.getComments().add(commentEntity);
+        productRepositpry.save(product);
+    }
 
 }
